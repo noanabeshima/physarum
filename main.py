@@ -6,7 +6,6 @@ from copy import deepcopy
 from joblib import Parallel, delayed
 
 
-
 class Angle:
     def __init__(self, angle = False):
         # If angle is False, generate random angle, else use angle from arg
@@ -40,18 +39,16 @@ class Angle:
         return self.__mul__(other)
     def __str__(self):
         return str(self.angle)
-    
-
 
 class Agent:
     def __init__(self, world, sensor_angle=.4, sensor_offset=6, rotation_angle=.3, step_size=3, pos=False, orient=False):
         self.world = world
-        if pos is False:
+        if pos is False: # not initialized with a position
             self.position = (np.random.random(2)*np.array(self.world.shape))
             self.position = np.mod(self.position, np.array(self.world.shape)) # Make sure position fits in world
         else:
             self.position = pos
-        if orient is False:
+        if orient is False: # not initialized with an orientation/angle
             self.orientation = Angle() # Orientation in radians
         else:
             self.orientation = orient
@@ -89,6 +86,7 @@ class Agent:
             pass
 
     def deposit(self):
+        # Deposit 'trail chemical' onto the world grid
         pos = self.position.astype(int)
         self.world.grid[pos[0], pos[1]] += .005
         self.world.grid[pos[0], pos[1]].clip(0,1)
@@ -107,7 +105,7 @@ class World:
 
     def render(self):
         im = 255*np.array(self.grid)
-        # im = np.kron(im, np.ones((2,2))) # Option to expand pixels per grid cell
+        # im = np.kron(im, np.ones((2,2))) # Option to have 2x2 pixels per each grid cell
         cv2.imshow('Physarum', im)
         if cv2.waitKey(1) == 27: # Escape button will leave the video
             exit()
